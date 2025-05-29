@@ -10,7 +10,7 @@ st.title("🖼️ แสดงภาพจาก URL และดูภาพเ
 image_urls = [
     "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",  # Replaced URL
-    "https://images.unsplash.com/photo-1493244040629-496f6d136cc3?auto=format&fit=crop&w=800&q=80"
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Cat_August_2010-4.jpg/960px-Cat_August_2010-4.jpg"
 ]
 
 # สร้างคอลัมน์ 3 รูป
