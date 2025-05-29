@@ -1,31 +1,47 @@
 import streamlit as st
-from ultralytics import YOLO
 from PIL import Image
 import requests
 from io import BytesIO
+from transformers import DetrForObjectDetection, DetrImageProcessor
+import torch
 
-# โหลดโมเดล
-model = YOLO("yolov8n.pt")
+model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50")
+processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
 
-def load_image_from_url(url):
+def load_image(url):
     response = requests.get(url)
-    img = Image.open(BytesIO(response.content)).convert("RGB")
-    return img
+    return Image.open(BytesIO(response.content)).convert("RGB")
 
-st.title("YOLOv8 Object Detection without OpenCV")
+st.title("Object Detection with DETR (no YOLO, no OpenCV)")
 
-url = st.text_input("ใส่ URL ภาพที่นี่")
+url = st.text_input("Input image URL")
 
 if url:
-    image = load_image_from_url(url)
+    image = load_image(url)
     st.image(image, caption="Input Image", use_column_width=True)
 
-    # รัน detect
-    results = model(image)
+    inputs = processor(images=image, return_tensors="pt")
+    outputs = model(**inputs)
 
-    # แสดงผล object detection (bounding boxes) โดยใช้ PIL
-    results_plotted = results[0].plot()  # plot() คืนภาพเป็น numpy array
+    # Process output detections
+    target_sizes = torch.tensor([image.size[::-1]])
+    results = processor.post_process_object_detection(outputs, target_sizes=target_sizes)[0]
 
-    # แปลง numpy array -> PIL.Image เพื่อแสดงบน Streamlit โดยไม่ต้อง cv2
-    result_img = Image.fromarray(results_plotted)
-    st.image(result_img, caption="Detected Objects", use_column_width=True)
+    # Draw boxes
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
+
+    fig, ax = plt.subplots(1)
+    ax.imshow(image)
+
+    for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+        if score > 0.7:
+            box = box.tolist()
+            x, y, x2, y2 = box
+            width, height = x2 - x, y2 - y
+            rect = patches.Rectangle((x, y), width, height, linewidth=2, edgecolor='r', facecolor='none')
+            ax.add_patch(rect)
+            ax.text(x, y, f"{model.config.id2label[label.item()]}: {score:.2f}", color='white',
+                    bbox=dict(facecolor='red', alpha=0.5))
+
+    st.pyplot(fig)
