@@ -13,8 +13,7 @@ image_urls = [
     "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Cat_August_2010-4.jpg/960px-Cat_August_2010-4.jpg"
 ]
 
-# Slider สำหรับภาพเล็ก (ความกว้าง)
-img_width = st.slider("Adjust small image width (pixels)", min_value=100, max_value=600, value=300, step=10)
+
 
 # สร้างคอลัมน์ 3 รูป พร้อมปุ่มเลือกภาพ
 cols = st.columns(3)
@@ -63,14 +62,20 @@ if st.session_state.selected_index is not None:
         rotated_image = resized_image.rotate(rotate_degree, expand=True)
 
         # Show with matplotlib, smaller figure size
-        fig, ax = plt.subplots(figsize=(6, 4))
+# Show with matplotlib, smaller figure size and fonts
+        fig, ax = plt.subplots(figsize=(4, 3))
         ax.imshow(rotated_image)
         ax.set_xlabel('X axis (pixels)')
         ax.set_ylabel('Y axis (pixels)')
         ax.set_title(f"Image {st.session_state.selected_index + 1} (Size: {new_w}x{new_h}px, Rotation: {rotate_degree}°)")
+        ax.tick_params(labelsize=8)
+        ax.xaxis.label.set_size(9)
+        ax.yaxis.label.set_size(9)
+        ax.title.set_size(10)
         ax.axis('on')
-
+        
         st.pyplot(fig)
+
 
     except UnidentifiedImageError:
         st.error("❌ Cannot load full image: Unsupported image format")
