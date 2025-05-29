@@ -2,51 +2,52 @@ import streamlit as st
 from PIL import Image
 import requests
 from io import BytesIO
-from ultralytics import YOLO
-import cv2
-import numpy as np
+from transformers import DetrForObjectDetection, DetrImageProcessor
+import torch
 from collections import Counter
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
-st.title("YOLOv8 Object Detection from Image URL")
+model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50")
+processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
 
-# ใส่ URL รูปภาพ
-img_url = st.text_input("Enter Image URL")
+def load_image(url):
+    response = requests.get(url)
+    return Image.open(BytesIO(response.content)).convert("RGB")
 
-if img_url:
-    try:
-        # โหลดรูปจาก URL
-        response = requests.get(img_url)
-        img = Image.open(BytesIO(response.content)).convert("RGB")
+st.title("Object Detection with DETR (no YOLO, no OpenCV)")
 
-        # แปลงเป็น numpy array (BGR) ให้ YOLO ใช้ได้
-        img_np = np.array(img)
-        img_cv = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+url = st.text_input("Input image URL")
 
-        # โหลดโมเดล YOLOv8 nano
-        model = YOLO("yolov8n.pt")  # ต้องมีไฟล์นี้อยู่ใน path หรือดาวน์โหลดเอง
+if url:
+    image = load_image(url)
+    st.image(image, caption="Input Image", use_column_width=True)
 
-        # ทำ inference
-        results = model(img_cv)[0]
+    inputs = processor(images=image, return_tensors="pt")
+    outputs = model(**inputs)
 
-        # วาดกรอบกล่องและ label ลงบนภาพ
-        for box, cls in zip(results.boxes.xyxy, results.boxes.cls):
-            x1, y1, x2, y2 = map(int, box)
-            label = model.names[int(cls)]
-            cv2.rectangle(img_cv, (x1, y1), (x2, y2), (0,255,0), 2)
-            cv2.putText(img_cv, label, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.9, (0,255,0), 2)
+    target_sizes = torch.tensor([image.size[::-1]])
+    results = processor.post_process_object_detection(outputs, target_sizes=target_sizes)[0]
 
-        # แปลง BGR กลับเป็น RGB สำหรับแสดงบน Streamlit
-        img_display = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
-        st.image(img_display, caption="Detected Objects", use_column_width=True)
+    fig, ax = plt.subplots(1)
+    ax.imshow(image)
 
-        # นับจำนวนวัตถุแต่ละประเภท
-        classes_detected = [model.names[int(cls)] for cls in results.boxes.cls]
-        count = Counter(classes_detected)
+    detected_labels = []
 
-        st.markdown("### Objects detected:")
-        for obj, qty in count.items():
-            st.write(f"- {obj}: {qty}")
+    for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+        if score > 0.7:
+            box = box.tolist()
+            x, y, x2, y2 = box
+            width, height = x2 - x, y2 - y
+            rect = patches.Rectangle((x, y), width, height, linewidth=2, edgecolor='r', facecolor='none')
+            ax.add_patch(rect)
+            ax.text(x, y, f"{model.config.id2label[label.item()]}: {score:.2f}", color='white',
+                    bbox=dict(facecolor='red', alpha=0.5))
+            detected_labels.append(model.config.id2label[label.item()])
 
-    except Exception as e:
-        st.error(f"Error: {e}")
+    st.pyplot(fig)
+
+    count = Counter(detected_labels)
+    st.markdown("### Objects detected:")
+    for obj, qty in count.items():
+        st.write(f"- {obj}: {qty}")
