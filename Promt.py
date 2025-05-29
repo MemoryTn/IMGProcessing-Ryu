@@ -59,9 +59,6 @@ if st.session_state.selected_index is not None:
         resized_image = full_image.resize((new_w, new_h))
         rotated_image = resized_image.rotate(rotate_degree, expand=True)
 
-        # Show with matplotlib, smaller figure size
-# Show with matplotlib, smaller figure size
-# Show with matplotlib, smaller figure size
         fig, ax = plt.subplots(figsize=(2, 1.5))  # Even smaller figure size
         ax.imshow(rotated_image)
         ax.set_xlabel('X axis (pixels)', fontsize=7)  # Smaller font
@@ -69,10 +66,9 @@ if st.session_state.selected_index is not None:
         ax.set_title(f"Image {st.session_state.selected_index + 1} (Size: {new_w}x{new_h}px, Rotation: {rotate_degree}°)", fontsize=8)  # Smaller title font
         ax.tick_params(axis='both', which='major', labelsize=6)  # Smaller tick labels
         ax.axis('on')
-        plt.tight_layout()  # Reduce padding around the plot
+        plt.tight_layout()  
         st.pyplot(fig)
         
-        st.pyplot(fig)
     except UnidentifiedImageError:
         st.error("❌ Cannot load full image: Unsupported image format")
     except requests.exceptions.HTTPError as e:
