@@ -13,9 +13,6 @@ image_urls = [
     "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Cat_August_2010-4.jpg/960px-Cat_August_2010-4.jpg"
 ]
 
-# Slider สำหรับภาพเล็ก (ความกว้าง)
-img_width = st.slider("Adjust small image width (pixels)", min_value=100, max_value=600, value=300, step=10)
-
 # สร้างคอลัมน์ 3 รูป พร้อมปุ่มเลือกภาพ
 cols = st.columns(3)
 
@@ -29,7 +26,7 @@ for i, (col, url) in enumerate(zip(cols, image_urls)):
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
             image = Image.open(BytesIO(response.content)).convert("RGB")
-            st.image(image, caption=f"Image {i+1}", width=img_width)
+            st.image(image, caption=f"Image {i+1}", width=300)  # fix ขนาดรูปเล็กไว้ที่ 300 px
             if st.button(f"🔍 View Image {i+1}", key=f"btn_{i}"):
                 st.session_state.selected_index = i
         except UnidentifiedImageError:
@@ -63,11 +60,12 @@ if st.session_state.selected_index is not None:
         rotated_image = resized_image.rotate(rotate_degree, expand=True)
 
         # Show with matplotlib, smaller figure size
-        fig, ax = plt.subplots(figsize=(6, 4))
+        fig, ax = plt.subplots(figsize=(4, 3))
         ax.imshow(rotated_image)
-        ax.set_xlabel('X axis (pixels)')
-        ax.set_ylabel('Y axis (pixels)')
-        ax.set_title(f"Image {st.session_state.selected_index + 1} (Size: {new_w}x{new_h}px, Rotation: {rotate_degree}°)")
+        ax.set_xlabel('X axis (pixels)', fontsize=9)
+        ax.set_ylabel('Y axis (pixels)', fontsize=9)
+        ax.set_title(f"Image {st.session_state.selected_index + 1} (Size: {new_w}x{new_h}px, Rotation: {rotate_degree}°)", fontsize=10)
+        ax.tick_params(axis='both', which='major', labelsize=8)
         ax.axis('on')
 
         st.pyplot(fig)
