@@ -61,13 +61,16 @@ if st.session_state.selected_index is not None:
 
         # Show with matplotlib, smaller figure size
 # Show with matplotlib, smaller figure size
-        fig, ax = plt.subplots(figsize=(3, 2))  # Reduced figure size
+# Show with matplotlib, smaller figure size
+        fig, ax = plt.subplots(figsize=(2, 1.5))  # Even smaller figure size
         ax.imshow(rotated_image)
-        ax.set_xlabel('X axis (pixels)', fontsize=8)  # Slightly smaller font
-        ax.set_ylabel('Y axis (pixels)', fontsize=8)  # Slightly smaller font
-        ax.set_title(f"Image {st.session_state.selected_index + 1} (Size: {new_w}x{new_h}px, Rotation: {rotate_degree}°)", fontsize=9)  # Smaller title font
-        ax.tick_params(axis='both', which='major', labelsize=7)  # Smaller tick labels
+        ax.set_xlabel('X axis (pixels)', fontsize=7)  # Smaller font
+        ax.set_ylabel('Y axis (pixels)', fontsize=7)  # Smaller font
+        ax.set_title(f"Image {st.session_state.selected_index + 1} (Size: {new_w}x{new_h}px, Rotation: {rotate_degree}°)", fontsize=8)  # Smaller title font
+        ax.tick_params(axis='both', which='major', labelsize=6)  # Smaller tick labels
         ax.axis('on')
+        plt.tight_layout()  # Reduce padding around the plot
+        st.pyplot(fig)
         
         st.pyplot(fig)
     except UnidentifiedImageError:
