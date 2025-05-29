@@ -1,36 +1,31 @@
 import streamlit as st
-import requests
-from PIL import Image
-from io import BytesIO
 from ultralytics import YOLO
+from PIL import Image
+import requests
+from io import BytesIO
 
-# โหลดโมเดล YOLOv8
+# โหลดโมเดล
 model = YOLO("yolov8n.pt")
 
-st.title("🔍 Object Detection จาก URL ด้วย YOLO (ไม่ใช้ OpenCV)")
+def load_image_from_url(url):
+    response = requests.get(url)
+    img = Image.open(BytesIO(response.content)).convert("RGB")
+    return img
 
-url = st.text_input("https://miro.medium.com/v2/resize:fit:1400/1*EYFejGUjvjPcc4PZTwoufw.jpeg")
+st.title("YOLOv8 Object Detection without OpenCV")
+
+url = st.text_input("ใส่ URL ภาพที่นี่")
 
 if url:
-    try:
-        # โหลดภาพจาก URL
-        response = requests.get(url)
-        image = Image.open(BytesIO(response.content)).convert("RGB")
-        st.image(image, caption="ภาพต้นฉบับ", use_column_width=True)
+    image = load_image_from_url(url)
+    st.image(image, caption="Input Image", use_column_width=True)
 
-        # ตรวจจับวัตถุ
-        results = model.predict(image)
+    # รัน detect
+    results = model(image)
 
-        # ดึงภาพผลลัพธ์จาก .plot() แล้วแปลงเป็น Image
-        result_np = results[0].plot()
-        result_img = Image.fromarray(result_np)
-        st.image(result_img, caption="ผลลัพธ์ Object Detection", use_column_width=True)
+    # แสดงผล object detection (bounding boxes) โดยใช้ PIL
+    results_plotted = results[0].plot()  # plot() คืนภาพเป็น numpy array
 
-        # แสดงรายการวัตถุที่ตรวจพบ
-        st.subheader("🔎 รายการวัตถุที่พบ:")
-        labels = results[0].names
-        detected = [labels[int(cls)] for cls in results[0].boxes.cls]
-        st.write(set(detected))
-
-    except Exception as e:
-        st.error(f"เกิดข้อผิดพลาด: {e}")
+    # แปลง numpy array -> PIL.Image เพื่อแสดงบน Streamlit โดยไม่ต้อง cv2
+    result_img = Image.fromarray(results_plotted)
+    st.image(result_img, caption="Detected Objects", use_column_width=True)
