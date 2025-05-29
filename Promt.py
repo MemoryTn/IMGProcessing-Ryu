@@ -14,7 +14,7 @@ st.title("🖼️ แสดงภาพจาก URL และดูค่าส
 
 # รับ URL จากผู้ใช้
 image_url = st.text_input("กรอก URL ของภาพ", 
-                          "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Iris_sanguinea.JPG/800px-Iris_sanguinea.JPG")
+                          "https://images.unsplash.com/photo-1617957681498-30e3e3d8e8bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")
 
 if image_url:
     # ตรวจสอบว่า URL ถูกต้อง
