@@ -59,7 +59,7 @@ if st.session_state.selected_index is not None:
         resized_image = full_image.resize((new_w, new_h))
         rotated_image = resized_image.rotate(rotate_degree, expand=True)
 
-        fig, ax = plt.subplots(figsize=(10, 10))  # Even smaller figure size
+        fig, ax = plt.subplots(figsize=(6, 6))  # Even smaller figure size
         ax.imshow(rotated_image)
         ax.set_xlabel('X axis (pixels)', fontsize=7)  # Smaller font
         ax.set_ylabel('Y axis (pixels)', fontsize=7)  # Smaller font
