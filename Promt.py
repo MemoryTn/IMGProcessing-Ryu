@@ -8,9 +8,9 @@ st.title("🖼️ แสดงภาพจาก URL และดูภาพเ
 
 # URLs ของภาพที่ใช้ได้แน่นอน
 image_urls = [
-    "https://blog.wu.ac.th/wp-content/uploads/2023/01/2-768x578.jpg",
-    "https://blog.wu.ac.th/wp-content/uploads/2023/01/3-1-768x576.jpg",
-    "https://blog.wu.ac.th/wp-content/uploads/2023/01/5-1024x769.jpg"
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1529688530647-93a5c4a3f8b0?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1493244040629-496f6d136cc3?auto=format&fit=crop&w=800&q=80"
 ]
 
 # สร้างคอลัมน์ 3 รูป
@@ -22,7 +22,7 @@ for i, (col, url) in enumerate(zip(cols, image_urls)):
         try:
             headers = {"User-Agent": "Mozilla/5.0"}
             response = requests.get(url, headers=headers, timeout=10)
-            image = Image.open(BytesIO(response.content))
+            image = Image.open(BytesIO(response.content)).convert("RGB")
             st.image(image, caption=f"ภาพที่ {i+1}", use_column_width=True)
             if st.button(f"🔍 ดูภาพที่ {i+1}", key=f"btn_{i}"):
                 selected_index = i
@@ -36,7 +36,8 @@ if selected_index is not None:
     st.markdown("---")
     st.subheader(f"🔎 ภาพที่ {selected_index + 1} แบบเต็ม")
     try:
-        full_image = Image.open(BytesIO(requests.get(image_urls[selected_index]).content))
+        response = requests.get(image_urls[selected_index], headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        full_image = Image.open(BytesIO(response.content)).convert("RGB")
         st.image(full_image, use_column_width=True)
     except:
         st.error("❌ โหลดภาพแบบเต็มไม่สำเร็จ")
