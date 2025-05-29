@@ -8,15 +8,21 @@ from io import BytesIO
 st.set_page_config(layout="wide")
 st.title("Blending ภาพจาก URL")
 
-# --- URL ภาพ 2 รูป (กำหนดไว้ล่วงหน้า) ---
-URL_IMAGE_1 = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Fronalpstock_big.jpg/320px-Fronalpstock_big.jpg"
-URL_IMAGE_2 = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/June_odd-eyed-cat_cropped.jpg/320px-June_odd-eyed-cat_cropped.jpg"
+# --- URL ภาพ 2 รูป (จาก Imgur ที่รองรับ bot และเปิดได้แน่นอน) ---
+URL_IMAGE_1 = "https://i.imgur.com/8vuLtqi.png"
+URL_IMAGE_2 = "https://i.imgur.com/ExdKOOz.png"
 
-# --- ฟังก์ชันโหลดภาพ ---
+# --- ฟังก์ชันโหลดภาพ พร้อมจัดการ error ---
 def load_image_from_url(url):
-    response = requests.get(url)
-    image = Image.open(BytesIO(response.content)).convert("RGBA")
-    return np.array(image) / 255.0
+    headers = {"User-Agent": "Mozilla/5.0"}
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        image = Image.open(BytesIO(response.content)).convert("RGBA")
+        return np.array(image) / 255.0
+    except Exception as e:
+        st.error(f"❌ ไม่สามารถโหลดรูปภาพจาก URL ได้:\n{url}\n\n📌 Error: {e}")
+        st.stop()
 
 # --- ฟังก์ชัน blend ---
 def blend_images(img1, img2, alpha, mode):
@@ -36,21 +42,21 @@ def blend_images(img1, img2, alpha, mode):
 img1 = load_image_from_url(URL_IMAGE_1)
 img2 = load_image_from_url(URL_IMAGE_2)
 
-# --- ปรับขนาดให้ตรงกัน ---
+# --- ปรับขนาดให้เท่ากัน ---
 h, w = min(img1.shape[0], img2.shape[0]), min(img1.shape[1], img2.shape[1])
 img1 = img1[:h, :w]
 img2 = img2[:h, :w]
 
-# --- UI: เลือก blending mode และ alpha ---
+# --- UI ด้านซ้าย: เลือก blending ---
 col1, col2 = st.columns([1, 2])
 with col1:
     alpha = st.slider("Blending Ratio (alpha)", 0.0, 1.0, 0.5, 0.01)
     mode = st.selectbox("Blending Mode", ['normal', 'multiply', 'screen', 'overlay'])
 
-# --- ประมวลผล blended image ---
+# --- ประมวลผลภาพ blend ---
 blended = blend_images(img1, img2, alpha, mode)
 
-# --- แสดงผลด้วย Matplotlib ---
+# --- แสดงผลภาพทั้ง 3 ด้วย matplotlib ---
 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 axes[0].imshow(img1)
 axes[0].set_title("Image 1")
