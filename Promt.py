@@ -8,9 +8,9 @@ st.title("🖼️ แสดงภาพจาก URL และดูภาพเ
 
 # URLs ของภาพที่ใช้ได้แน่นอน
 image_urls = [
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Iris_sanguinea.JPG/800px-Iris_sanguinea.JPG",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Lake_mapourika_NZ.jpeg/800px-Lake_mapourika_NZ.jpeg",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Sunset_2007-1.jpg/800px-Sunset_2007-1.jpg"
+    "https://blog.wu.ac.th/wp-content/uploads/2023/01/2-768x578.jpg",
+    "https://blog.wu.ac.th/wp-content/uploads/2023/01/3-1-768x576.jpg",
+    "https://blog.wu.ac.th/wp-content/uploads/2023/01/5-1024x769.jpg"
 ]
 
 # สร้างคอลัมน์ 3 รูป
