@@ -9,7 +9,7 @@ model = YOLO("yolov8n.pt")
 
 st.title("🔍 Object Detection จาก URL ด้วย YOLO (ไม่ใช้ OpenCV)")
 
-url = st.text_input("ใส่ URL ของภาพ:")
+url = st.text_input("https://miro.medium.com/v2/resize:fit:1400/1*EYFejGUjvjPcc4PZTwoufw.jpeg")
 
 if url:
     try:
