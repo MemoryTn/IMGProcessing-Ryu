@@ -9,7 +9,6 @@ from PIL import ImageEnhance
 import matplotlib.cm as cm
 import requests
 from io import BytesIO
-from skimage.transform import resize  # ✅ Added import
 
 # Load model
 model = MobileNetV2(weights="imagenet")
@@ -26,6 +25,8 @@ if uploaded_file is not None:
     # Preprocess image
     image_resized = resize(image, (224, 224), anti_aliasing=True)
     image_resized = (image_resized * 255).astype(np.uint8)
+    #or
+    #image_resized = tf.image.resize(image, (224, 224)).numpy()
 
     img_array = np.array(image_resized)
     img_array_expanded = np.expand_dims(img_array, axis=0)
