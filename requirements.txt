@@ -1,6 +1,8 @@
 streamlit==1.44.0
+tensorflow
 torch>=1.13
 torchvision==0.21.0
 pillow==11.1.0
 transformers==4.36.2
-tensorflow 
+scikit-image
+numpy>=1.21
