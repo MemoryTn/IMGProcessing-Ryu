@@ -2,12 +2,13 @@
 streamlit
 scikit-image>=0.19.3
 matplotlib
-pillow
 requests
 transformers
-torch
 timm
-
+torch>=1.13
+torchvision==0.21.0
+pillow==11.1.0
+transformers==4.36.2
 
 
 
